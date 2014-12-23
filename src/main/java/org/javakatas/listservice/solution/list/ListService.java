@@ -2,10 +2,8 @@ package org.javakatas.listservice.solution.list;
 
 
 import org.javakatas.listservice.problem.exception.UserNotLoggedInException;
-import org.javakatas.listservice.problem.list.ProductList;
-import org.javakatas.listservice.problem.list.ProductListDAO;
-import org.javakatas.listservice.problem.user.User;
-import org.javakatas.listservice.problem.user.UserSession;
+import org.javakatas.listservice.solution.user.User;
+import org.javakatas.listservice.solution.user.UserSession;
 
 
 import java.util.ArrayList;
@@ -13,26 +11,28 @@ import java.util.List;
 
 public class ListService {
 
-    public List<ProductList> getListsByUser(User user) throws UserNotLoggedInException {
-        List<ProductList> productList = new ArrayList<ProductList>();
-        User loggedUser = UserSession.getInstance().getLoggedUser();
+    private ProductListDAO productListDAO;
 
-        boolean isFriend = false;
+    public List<ProductList> getFriendLists(User friend, User loggedInUser) throws UserNotLoggedInException {
+        validate(loggedInUser);
 
-        if (loggedUser != null) {
-            for (User friend : user.getFriends()) {
-                if (friend.equals(loggedUser)) {
-                    isFriend = true;
-                    break;
-                }
-            }
-            if (isFriend){
-                productList = ProductListDAO.findProductsByUser(user);
-            }
-            return productList;
-        } else {
+        return friend.isFriendWith(loggedInUser)
+                ? findProductListsByUser(friend)
+                : noLists();
+    }
+
+    private ArrayList<ProductList> noLists() {
+        return new ArrayList<ProductList>();
+    }
+
+    private void validate(User loggedInUser) {
+        if (loggedInUser == null) {
             throw new UserNotLoggedInException();
         }
-
     }
+
+    private List<ProductList> findProductListsByUser(User user) {
+        return productListDAO.listsBy(user);
+    }
+
 }

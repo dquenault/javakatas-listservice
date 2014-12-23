@@ -1,4 +1,4 @@
-package org.javakatas.listservice.problem.list;
+package org.javakatas.listservice.solution.list;
 
 import java.util.ArrayList;
 
